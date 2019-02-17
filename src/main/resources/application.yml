@@ -1,0 +1,119 @@
+# ------------------------------------------以下是非内置属性---------------------------------------------------
+# 业务日志配置属性（非springboot内置），logback配置文件中通过springProperty标签读取
+app:
+#  name: hui-mall-goods
+  name: goods
+  # 日志文件路径
+  log-dir: /opt/logs/${app.name}
+  log-filename: ${app.name}
+  log-max-size: 100MB
+
+
+  # ------------------------------------------以下是Spring内置属性----------------------------------------------
+server:
+  # tomcat日志配置
+  tomcat:
+    accesslog:
+      # 是否开启日志缓冲
+      buffered: false
+      # 日志目录
+      directory: /opt/logs/tomcat
+      # 是否开启access日志
+      enabled: true
+      #日志文件名中日期的格式
+      file-date-format: .yyyy-MM-dd
+      # 日志格式模板，spring内置了两个模板common 和 combined ，也可以自定义日志格式
+      #pattern: "%t [%I] %{X-Forwarded-For}i %a %r %s (%D ms)"
+      pattern: common
+      # 日志文件名的前缀,根据项目做修改
+      prefix: ${app.name}-access
+      # 时间戳是否包含在日志文件名中直到日志文件轮转
+      rename-on-rotate: true
+      # 为请求设置IP address, Hostname, protocol and port等属性
+      request-attributes-enabled: false
+      # 是否启用日志轮转
+      rotate: true
+      # 日志文件的后缀
+      suffix: .log
+  port: 8080
+#  servlet:
+#    context-path: /goods
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:8000/eureka/,http://127.0.0.1:8001/eureka/
+
+spring:
+  application:
+    name: ${app.name}
+  profiles:
+    active: dev
+  # ------------------------------------------以下是数据库连接配置----------------------------------------------
+  datasource:
+    druid:
+      url: jdbc:mysql://127.0.0.1:3306/mallserver?characterEncoding=utf-8&allowMultiQueries=true&zeroDateTimeBehavior=convertToNull
+      username: dhome
+      password: dhome
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      initial-size: 5
+      max-active: 20
+      min-idle: 5
+      # 获取连接时最大等待时间
+      max-wait: 60000
+      # 是否缓存preparedStatement，也就是PSCache。
+      pool-prepared-statements: false
+      # 要启用PSCache，必须配置大于0，当大于0时，poolPreparedStatements自动触发修改为true。
+      max-pool-prepared-statement-per-connection-size: -1
+      validation-query: SELECT 'x'
+      # 单位：秒，检测连接是否有效的超时时间。
+      validation-query-timeout: 1
+      test-on-borrow: false
+      test-on-return: false
+      test-while-idle: true
+      time-between-eviction-runs-millis: 6000
+      min-evictable-idle-time-millis: 1800000
+      # 监控页面相关配置
+      stat-view-servlet:
+        url-pattern: /druid/*
+        login-username: admin
+        login-password: admin
+      # filter相关配置
+      filter:
+        stat:
+          slow-sql-millis: 1000
+          log-slow-sql: true
+          enabled: true
+
+  redis:
+    password: redis
+    timeout: 2000ms
+    cluster:
+      max-redirects: 5
+      nodes:
+      - 127.0.0.1:6380
+      - 127.0.0.1:6381
+      - 127.0.0.1:6380
+      - 127.0.0.1:6381
+      - 127.0.0.1:6380
+      - 127.0.0.1:6381
+    lettuce:
+      pool:
+        max-active: 50
+        max-idle: 10
+        max-wait: 1000ms
+        min-idle: 5
+
+
+  # 开启actuator端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ["metrics","loggers","shutdown"]
+  endpoint:
+    shutdown:
+      enabled: true
+    loggers:
+      enabled: true
+
